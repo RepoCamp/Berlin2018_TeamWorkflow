@@ -4,30 +4,91 @@ dist: trusty
 
 addons:
   chrome: stable
+  apt:
+    packages:
+    - qt5-default
+    - libqt5webkit5-dev
+    - gstreamer1.0-plugins-base
+    - gstreamer1.0-tools gstreamer1.0-x
+    - google-chrome-stable
 cache:
   bundler: true
 
 before_install:
-  - gem update --system
-  - gem install bundler
-  - google-chrome-stable --headless --disable-gpu --no-sandbox --remote-debugging-port=9222 http://localhost &
+- gem update --system
+- gem install bundler
+- google-chrome-stable --headless --disable-gpu --no-sandbox --remote-debugging-port=9222 http://localhost &
 
 rvm:
-  - 2.5.0
+- 2.5.0
 
 env:
   global:
-    - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
-    - ENGINE_CART_RAILS_OPTIONS='--skip-git --skip-bundle --skip-listen --skip-spring --skip-yarn --skip-keeps --skip-action-cable --skip-coffee --skip-puma --skip-test'
+  - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
+  - ENGINE_CART_RAILS_OPTIONS='--skip-git --skip-bundle --skip-listen --skip-spring --skip-yarn --skip-keeps --skip-action-cable --skip-coffee --skip-puma --skip-test'
   # Travis should check every minor version in a range of supported versions, because
   # rails does not follow sem-ver conventions, see http://guides.rubyonrails.org/maintenance_policy.html
   # It should be sufficient to test only the latest of the patch versions for a minor version, they
   # should be compatible across patch versions (only bug fixes are released in patch versions).
   matrix:
-    - "RAILS_VERSION=5.1.4"
+  - "RAILS_VERSION=5.1.4"
 
 services:
-  - redis-server
+- redis-server
+- postgresql
 before_script:
-  - jdk_switcher use oraclejdk8
+- jdk_switcher use oraclejdk8
+
+before_script:
+- bundle exec rake db:create
+script:
+- xvfb-run -a bundle exec rake ci
+
+
+language: ruby
+sudo: required
+dist: trusty
+
+addons:
+  chrome: stable
+  apt:
+    packages:
+    - qt5-default
+    - libqt5webkit5-dev
+    - gstreamer1.0-plugins-base
+    - gstreamer1.0-tools gstreamer1.0-x
+    - google-chrome-stable
+cache:
+  bundler: true
+
+before_install:
+- gem update --system
+- gem install bundler
+- google-chrome-stable --headless --disable-gpu --no-sandbox --remote-debugging-port=9222 http://localhost &
+
+rvm:
+- 2.5.0
+
+env:
+  global:
+  - NOKOGIRI_USE_SYSTEM_LIBRARIES=true
+  - ENGINE_CART_RAILS_OPTIONS='--skip-git --skip-bundle --skip-listen --skip-spring --skip-yarn --skip-keeps --skip-action-cable --skip-coffee --skip-puma --skip-test'
+  # Travis should check every minor version in a range of supported versions, because
+  # rails does not follow sem-ver conventions, see http://guides.rubyonrails.org/maintenance_policy.html
+  # It should be sufficient to test only the latest of the patch versions for a minor version, they
+  # should be compatible across patch versions (only bug fixes are released in patch versions).
+  matrix:
+  - "RAILS_VERSION=5.1.4"
+
+services:
+- redis-server
+- postgresql
+before_script:
+- jdk_switcher use oraclejdk8
+
+before_script:
+- bundle exec rake db:create
+script:
+- xvfb-run -a bundle exec rake ci
+
 
